@@ -11,7 +11,6 @@ from deep_research.context_providers import ContentItem, CurrentDateContextProvi
 
 from rich import print
 
-
 def perform_search_and_update_context(
     user_message: str, scraped_content_context_provider: ScrapedContentContextProvider
 ) -> None:
@@ -117,6 +116,7 @@ def chat_loop() -> None:
         )
 
         if choice_agent_output.decision:
+            print("\nDecision: {choice_agent_output.decision}")
             print("\n[bold yellow]Performing new search[/bold yellow]")
             print(f"Reason: {choice_agent_output.reasoning}")
 

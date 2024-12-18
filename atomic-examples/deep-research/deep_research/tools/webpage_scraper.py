@@ -6,7 +6,6 @@ import requests
 from bs4 import BeautifulSoup
 from markdownify import markdownify
 from pydantic import Field, HttpUrl
-from readability import Document
 
 from atomic_agents.agents.base_agent import BaseIOSchema
 from atomic_agents.lib.base.base_tool import BaseTool, BaseToolConfig
@@ -120,13 +119,12 @@ class WebpageScraperTool(BaseTool):
 
         return response.text
 
-    def _extract_metadata(self, soup: BeautifulSoup, doc: Document, url: str) -> WebpageMetadata:
+    def _extract_metadata(self, soup: BeautifulSoup, url: str) -> WebpageMetadata:
         """
         Extracts metadata from the webpage.
 
         Args:
             soup (BeautifulSoup): The parsed HTML content.
-            doc (Document): The readability document.
             url (str): The URL of the webpage.
 
         Returns:
@@ -136,12 +134,16 @@ class WebpageScraperTool(BaseTool):
 
         # Extract metadata from meta tags
         metadata = {
-            "title": doc.title(),
+            "title": None,
             "domain": domain,
             "author": None,
             "description": None,
             "site_name": None,
         }
+        
+        title = soup.find("title")
+        if title:
+            metadata["title"] = title.string
 
         author_tag = soup.find("meta", attrs={"name": "author"})
         if author_tag:
@@ -240,7 +242,7 @@ class WebpageScraperTool(BaseTool):
         markdown_content = self._clean_markdown(markdown_content)
 
         # Extract metadata
-        metadata = self._extract_metadata(soup, Document(html_content), str(params.url))
+        metadata = self._extract_metadata(soup, str(params.url))
 
         return WebpageScraperToolOutputSchema(
             content=markdown_content,

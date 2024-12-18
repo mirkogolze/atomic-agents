@@ -5,6 +5,7 @@ from atomic_agents.agents.base_agent import BaseIOSchema, BaseAgent, BaseAgentCo
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator
 
 from deep_research.config import ChatConfig
+from deep_research.agents.client import client
 
 
 class ChoiceAgentInputSchema(BaseIOSchema):
@@ -23,7 +24,7 @@ class ChoiceAgentOutputSchema(BaseIOSchema):
 
 choice_agent = BaseAgent(
     BaseAgentConfig(
-        client=instructor.from_openai(openai.OpenAI(api_key=ChatConfig.api_key)),
+        client=instructor.from_openai(client),
         model=ChatConfig.model,
         system_prompt_generator=SystemPromptGenerator(
             background=[
