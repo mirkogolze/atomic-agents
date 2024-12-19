@@ -23,6 +23,8 @@ def perform_search_and_update_context(
     searxng_search_tool = SearxNGSearchTool(SearxNGSearchToolConfig(base_url="http://localhost:8080/"))
     search_results = searxng_search_tool.run(SearxNGSearchToolInputSchema(queries=queries))
 
+    print(f"Search done: {len(search_results.results)}")
+
     # Scrape content from search results
     webpage_scraper_tool = WebpageScraperTool()
     results_for_context_provider = []
@@ -30,6 +32,9 @@ def perform_search_and_update_context(
     for result in search_results.results[:3]:
         scraped_content = webpage_scraper_tool.run(WebpageScraperToolInputSchema(url=result.url, include_links=True))
         results_for_context_provider.append(ContentItem(content=scraped_content.content, url=result.url))
+        print(f"Webscraped : {result.url}")
+
+    print("Webscraper done")
 
     # Update the context provider with new content
     scraped_content_context_provider.content_items = results_for_context_provider
@@ -89,6 +94,7 @@ def chat_loop() -> None:
         "What are the most promising renewable energy technologies?",
         "What discoveries led to the latest Nobel Prize in Physics?",
         "How do black holes affect the structure of galaxies?",
+        "Wie wird das Wetter in Dresden an Weihnachten?"
     ]
 
     print("\n[bold blue]Suggested Topics:[/bold blue]")
@@ -116,7 +122,7 @@ def chat_loop() -> None:
         )
 
         if choice_agent_output.decision:
-            print("\nDecision: {choice_agent_output.decision}")
+            print(f"\nDecision: {choice_agent_output.decision}")
             print("\n[bold yellow]Performing new search[/bold yellow]")
             print(f"Reason: {choice_agent_output.reasoning}")
 
